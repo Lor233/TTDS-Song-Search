@@ -43,6 +43,14 @@ Example artist: [A 5 C V Maurice Avatar](https://www.lyrics.com/artist/A-5-C-V-M
 scrapy crawl artist -O artist.json
 ```
 
+### Crawl songs of one page artists
+
+Example page: [artists start with 'a' (1st page)](https://www.lyrics.com/artists/A)
+
+```
+scrapy crawl artist-page -O artist-page.json
+```
+
 ## Useful Docs
 
 [Scrapy 2.5 documentation¶](https://docs.scrapy.org/en/latest/)
