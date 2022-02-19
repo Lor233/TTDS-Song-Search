@@ -8,15 +8,16 @@ from songsearch import app, db
 @app.route('/', methods=['GET', 'POST'])
 def index():
     start_time = time.time()
+
     if request.method == 'POST':
         content = request.form.get('content')
         if not content or len(content) > 60:
             flash('Invalid search input.')
             return redirect(url_for('index'))
         return redirect(url_for('search', content=escape(content)))
+
     random_pipe = [{ '$sample': { 'size': 13 } }]
     songs = list(db.songs.aggregate(random_pipe))
-    print(songs[0])
     runtime = round(time.time() - start_time + 0.005, 2)
 
     return render_template('index.html', songs=songs, runtime=runtime)
@@ -35,7 +36,7 @@ def search(content):
 
     if len(songs) == 0:
         runtime = round(time.time() - start_time + 0.005, 2)
-        return render_template('no_results.html', runtime=runtime)
+        return render_template('no_results.html', runtime=runtime, keep_input=content)
 
     # find best and first match lyric
     lyrics = songs[0]['lyrics'].replace("\r", "").split('\n')
@@ -50,9 +51,9 @@ def search(content):
     runtime = round(time.time() - start_time + 0.005, 2)
 
     if len(songs) == 1:
-        return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=[], runtime=runtime)
+        return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=[], runtime=runtime, keep_input=content)
 
-    return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=songs[1:], runtime=runtime)
+    return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=songs[1:], runtime=runtime, keep_input=content)
 
 @app.route('/song/detail/<ObjectId:song_id>')
 def detail(song_id):
