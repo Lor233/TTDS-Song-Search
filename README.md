@@ -29,7 +29,9 @@ flask run
 
 ## Useful Docs
 [Construct a Watchlist based on Flask¶](https://read.helloflask.com/c0-preface)
+
 [How to Set Up Flask with MongoDB¶](https://www.mongodb.com/compatibility/setting-up-flask-with-mongodb)
 
 [Flask-PyMongo¶](https://flask-pymongo.readthedocs.io/en/latest/)
+
 [PyMongo 4.0.1 Documentation¶](https://pymongo.readthedocs.io/en/stable/)
