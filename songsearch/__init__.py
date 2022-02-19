@@ -3,6 +3,7 @@ import os, certifi
 from flask import Flask
 from flask_pymongo import PyMongo
 
+# TLS connection certifi
 ca = certifi.where()
 
 app = Flask(__name__)

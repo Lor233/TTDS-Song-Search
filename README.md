@@ -1,56 +1,35 @@
 # TTDS Song Search
-
 Lyrics search engine demo project.
 
 ## Install Requirements
-
 Before installing packages, it is recommended to configure a virtual environment using [Conda](https://docs.conda.io/en/latest/miniconda.html)
 
-### Install Conda
-
-Here windows conda used.
-
-### Install Scrapy
-
-[Scrapy](https://github.com/scrapy/scrapy) is used to create lyrics spiders.
-
+### Install Flask
+[Flask](https://github.com/pallets/flask) is used to construct search engine framework.
 ```
-conda install scrapy
-conda install protego
+pip install -U Flask
 ```
 
-## Run Spiders Examples
+### Install Flask-Pymongo
+[Flask-Pymongo](https://github.com/dcrosta/flask-pymongo) is used to connect Flask and MongoDB.
+```
+pip install flask-pymongo
+pip install pymongo
+```
 
+## Run Song Search Engine
 Enter the example project.
-
 ```
-cd lyrics
+cd songsearch
 ```
-
-### Crawl one song
-
-Example song: [Love Is Perverse](https://www.lyrics.com/sublyric/122508/The+Immaculate+Crows/Love+Is+Perverse)
-
+Run the website with Flask.
 ```
-scrapy crawl lyrics -O lyrics.json
-```
-
-### Crawl songs of one artist
-
-Example artist: [A 5 C V Maurice Avatar](https://www.lyrics.com/artist/A-5-C-V-Maurice-Avatar/2137939183)
-
-```
-scrapy crawl artist -O artist.json
-```
-
-### Crawl songs of one page artists
-
-Example page: [artists start with 'a' (1st page)](https://www.lyrics.com/artists/A)
-
-```
-scrapy crawl artist-page -O artist-page.json
+flask run
 ```
 
 ## Useful Docs
+[Construct a Watchlist based on Flask¶](https://read.helloflask.com/c0-preface)
+[How to Set Up Flask with MongoDB¶](https://www.mongodb.com/compatibility/setting-up-flask-with-mongodb)
 
-[Scrapy 2.5 documentation¶](https://docs.scrapy.org/en/latest/)
+[Flask-PyMongo¶](https://flask-pymongo.readthedocs.io/en/latest/)
+[PyMongo 4.0.1 Documentation¶](https://pymongo.readthedocs.io/en/stable/)
