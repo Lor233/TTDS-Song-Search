@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.name }}'s Song Search</title>
+    <link rel="icon" href="{{ url_for('static', filename='icons/tf_icon_music.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    {% endblock %}
+</head>
+<body>
+    <h2>
+        <img alt="Avatar" class="avatar" align="center" src="{{ url_for('static', filename='images/tf_icon_music.png') }}">
+        {{ user.name }}'s Song Search
+    </h2>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Random</a></li>
+        </ul>
+    </nav>
+    {% block content %}{% endblock %}
+    {% for message in get_flashed_messages() %}
+        <div class="alert">{{ message }}</div>
+    {% endfor %}
+    <footer>
+        <small>&copy; 2022 <a class="link" href="https://github.com/Lor233/TTDS-Song-Search">SongSearch</a></small>
+    </footer>
+    <img alt="Walking Totoro" class="listen" src="{{ url_for('static', filename='gifs/listen.gif') }}">
+</body>
+</html>

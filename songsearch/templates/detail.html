@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul class="song-detail">
+    <li><b>{{ song.title }}</b>
+        <span class="float-right">
+            <a class="spotify" href="https://open.spotify.com/search/{{ song.title }}-{{ song.artist }}" target="_blank" title="Find this song on Spotify">Spotify</a>
+        </span>
+    </li>
+    <li>{{ song.artist }}</li>
+    <li></li>
+    {% for lyric in lyrics %}
+    <li>{{ lyric }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

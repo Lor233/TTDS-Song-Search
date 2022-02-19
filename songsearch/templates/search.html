@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul class="song-list">
+    <li>    
+        <form method="post">
+            <input type="text" name="content" autocomplete="off" required>
+            <input class="btn" type="submit" name="submit" value="Search">
+        </form>
+    </li>
+    <li class="search-result">Top {{ songs|length + 1 }} songs results ({{ runtime }} seconds)</li>
+</ul>
+<ul class="song-list">
+    <li>
+        <a class="title" href="{{ url_for('detail', song_id=best.id) }}">{{ best.title }}</a>
+        <a class="artist">{{ best.artist }}</a>
+        <span class="float-right">
+            <a class="spotify" href="https://open.spotify.com/search/{{ best.title }} AND artist:&#34{{ best.artist }}&#34" target="_blank" title="Find this song on Spotify">Spotify</a>
+        </span>
+    </li>
+    {% for lyric in lyrics_3 %}
+    <li><a class="example-lyrics">{{ lyric }}</a></li>
+    {% endfor %}
+    <li><a class="example-lyrics">...</a></li>
+    {% if songs|length != 0 %}
+    {% for song in songs %}
+    <li>
+        <a class="title" href="{{ url_for('detail', song_id=song.id) }}">{{ song.title }}</a>
+        <a class="artist">{{ song.artist }}</a>
+        <span class="float-right">
+            <a class="spotify" href="https://open.spotify.com/search/{{ song.title }} AND artist:&#34{{ song.artist }}&#34" target="_blank" title="Find this song on Spotify">Spotify</a>
+        </span>
+    </li>
+    {% endfor %}
+    {% endif %}
+</ul>
+{% endblock %}

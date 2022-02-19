@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul class="song-list">
+    <li>    
+        <form method="post">
+            <input type="text" name="content" autocomplete="off" required>
+            <input class="btn" type="submit" name="submit" value="Search">
+        </form>
+    </li>
+    <li class="search-result">No songs results found ({{ runtime }} seconds)</li>
+</ul>
+{% endblock %}
