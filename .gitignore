@@ -1,2 +1,6 @@
 __pycache__
-lyrics/workspace.code-workspace
+*.pyc
+*~
+.DS_Store
+*.db
+.env
