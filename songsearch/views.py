@@ -2,10 +2,8 @@ import time
 import numpy as np
 
 from flask import render_template, request, url_for, redirect, flash, escape
-from sqlalchemy.sql.expression import func
 
 from songsearch import app, db
-from songsearch.models import Song
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -16,8 +14,11 @@ def index():
             flash('Invalid search input.')
             return redirect(url_for('index'))
         return redirect(url_for('search', content=escape(content)))
-    songs = Song.query.order_by(func.random()).limit(13).all()
+    random_pipe = [{ '$sample': { 'size': 13 } }]
+    songs = list(db.songs.aggregate(random_pipe))
+    print(songs[0])
     runtime = round(time.time() - start_time + 0.005, 2)
+
     return render_template('index.html', songs=songs, runtime=runtime)
 
 @app.route('/search/<content>', methods=['GET', 'POST'])
@@ -29,14 +30,15 @@ def search(content):
             flash('Invalid search input.')
             return redirect(url_for('search', content=content))
         return redirect(url_for('search', content=escape(new_content)))
-    songs = Song.query.filter(Song.lyrics.like('%%{content}%'.format(content=content))).limit(9).all()
+    query = { "lyrics": { "$regex": ".*{content}.*".format(content=content) } }
+    songs = list(db.songs.find(query).limit(9))
 
     if len(songs) == 0:
         runtime = round(time.time() - start_time + 0.005, 2)
         return render_template('no_results.html', runtime=runtime)
 
     # find best and first match lyric
-    lyrics = songs[0].lyrics.replace("\r", "").split('\n')
+    lyrics = songs[0]['lyrics'].replace("\r", "").split('\n')
     lyrics = np.array([x for x in lyrics if x])
     pos = [i for i,item in enumerate(lyrics) if content in item][0]
     # boundary judgment
@@ -52,21 +54,8 @@ def search(content):
 
     return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=songs[1:], runtime=runtime)
 
-@app.route('/song/detail/<int:song_id>')
+@app.route('/song/detail/<ObjectId:song_id>')
 def detail(song_id):
-    song = Song.query.get_or_404(song_id)
-    lyrics = song.lyrics.split('\n')
+    song = db.songs.find_one_or_404({"_id": song_id})
+    lyrics = song['lyrics'].split('\n')
     return render_template('detail.html', song=song, lyrics=lyrics)
-
-# @app.route('/user/<name>')
-# def user_page(name):
-#     return 'User: %s' % escape(name)
-
-@app.route('/test')
-def test_url_for():
-    print(url_for('index'))  # /
-    print(url_for('user_page', name='greyli'))  # /user/greyli
-    print(url_for('user_page', name='peter'))  # /user/peter
-    print(url_for('test_url_for'))  # /test
-    print(url_for('test_url_for', num=2))  # /test?num=2
-    return 'Test page'

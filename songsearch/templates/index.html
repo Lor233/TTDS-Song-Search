@@ -13,7 +13,7 @@
 <ul class="song-list">
     {% for song in songs %}
     <li>
-        <a class="title" href="{{ url_for('detail', song_id=song.id) }}">{{ song.title }}</a>
+        <a class="title" href="{{ url_for('detail', song_id=song._id) }}">{{ song.title }}</a>
         <a class="artist">{{ song.artist }}</a>
         <span class="float-right">
             <a class="spotify" href="https://open.spotify.com/search/{{ song.title }} AND artist:&#34{{ song.artist }}&#34" target="_blank" title="Find this song on Spotify">Spotify</a>
