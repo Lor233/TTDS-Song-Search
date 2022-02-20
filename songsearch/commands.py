@@ -1,11 +1,12 @@
 import click, json
 
 from songsearch import app, db
+from songsearch.search import invertedIndex
 
 @app.cli.command()
 def clear():
     # Clear the collection
-    db.songs.delete_many({})
+    db.inverted_index.delete_many({})
 
     click.echo('Collection cleared.')
 
@@ -21,8 +22,15 @@ def forge():
     click.echo('Generation done.')
 
 @app.cli.command()
+def generateindex():
+    invertedIndex()
+
+    click.echo('Inverted Index Generated.')
+
+@app.cli.command()
 def read():
     with open('./artist-page.json','r+') as f:
         songs = json.load(f)
 
     click.echo(songs[0])
+

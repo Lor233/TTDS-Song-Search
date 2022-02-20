@@ -5,4 +5,7 @@ Flask==2.0.3
 Flask-PyMongo==2.3.0
 pymongo[srv]==2.2.0
 python-dotenv==0.19.2
+re
+nltk
+tqdm
 net-tools

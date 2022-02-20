@@ -12,4 +12,4 @@ app.config["MONGO_URI"] = "mongodb+srv://ttds:VqLiQ1qYShEoqolv@ttds.s6ptp.mongod
 
 db = PyMongo(app, tlsCAFile=ca).db
 
-from songsearch import views, errors, commands
+from songsearch import views, errors, commands, search
