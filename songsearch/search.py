@@ -1,4 +1,4 @@
-import re
+import re, time
 import numpy as np
 from nltk.stem import PorterStemmer
 from tqdm import tqdm
@@ -28,29 +28,15 @@ def invertedIndex():
         for sen_pos, lyric in enumerate(lyrics):
             for word_pos, token in enumerate(stem(lyric)):
                 token_db = list(db.inverted_index.find({ 'token': token }))
-                song_exist = False
-                if len(token_db) != 0:
-                    songs = token_db[0]['songs']
-                    for i, in_song in enumerate(songs):
-                        if in_song['song_id'] == song['_id']:
-                            songs[i]['song_count'] += 1
-                            songs[i]['word'].append({ 'sen_pos': sen_pos, 'word_pos': word_pos })
-                            song_exist = True
-                        if song_exist==False:
-                            songs.append({ 'song_id': song['_id'], 'song_count': 1, 'word':
-                                            [{ 'sen_pos': sen_pos, 'word_pos': word_pos
-                                            }]
-                                        })
+                db.words.insert_one(
+                    { 'token': token, 'song_id': song['_id'], 'sen_pos': sen_pos, 'word_pos': word_pos }
+                )
                 if len(token_db) == 0:
                     db.inverted_index.insert_one(
-                        { 'token': token, 'count': 1, 'songs':
-                            [{ 'song_id': song['_id'], 'song_count': 1, 'word':
-                                [{ 'sen_pos': sen_pos, 'word_pos': word_pos
-                                }]
-                            }]
-                        }
+                        { 'token': token, 'song_id': song['_id'], 'count': 1 }
                     )
                 else:
-                    db.inverted_index.update_one({ '_id': token_db[0]['_id'] }, { '$set': 
-                        { 'count': token_db[0]['count']+1,  'songs': songs }
-                    })
+                    db.inverted_index.update_one(
+                        { '_id': token_db[0]['_id'], 'song_id': song['_id'] }, 
+                        { '$set': { 'count': token_db[0]['count'] + 1 } }
+                    )
