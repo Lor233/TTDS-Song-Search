@@ -4,6 +4,7 @@ import numpy as np
 from flask import render_template, request, url_for, redirect, flash, escape
 
 from songsearch import app, db
+from songsearch.search import parse
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -25,14 +26,15 @@ def index():
 @app.route('/search/<content>', methods=['GET', 'POST'])
 def search(content):
     start_time = time.time()
+
     if request.method == 'POST':
         new_content = request.form.get('content')
         if not new_content or len(new_content) > 60:
             flash('Invalid search input.')
             return redirect(url_for('search', content=content))
         return redirect(url_for('search', content=escape(new_content)))
-    query = { "lyrics": { "$regex": ".*{content}.*".format(content=content) } }
-    songs = list(db.songs.find(query).limit(9))
+
+    songs = list(parse(content))
 
     if len(songs) == 0:
         runtime = round(time.time() - start_time + 0.005, 2)
@@ -41,7 +43,10 @@ def search(content):
     # find best and first match lyric
     lyrics = songs[0]['lyrics'].replace("\r", "").split('\n')
     lyrics = np.array([x for x in lyrics if x])
-    pos = [i for i,item in enumerate(lyrics) if content in item][0]
+    print(len(songs))
+    print(songs[0]['match_titles'])
+    pos = songs[0]['match_titles'][0]['sen_pos'] if len(songs[0]['match_titles'])!=0 else 0
+
     # boundary judgment
     if pos == 0:
         pos = 1

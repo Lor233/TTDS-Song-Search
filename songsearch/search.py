@@ -1,4 +1,4 @@
-import re, time
+import re
 import numpy as np
 from nltk.stem import PorterStemmer
 from tqdm import tqdm
@@ -27,16 +27,42 @@ def invertedIndex():
         lyrics = np.array([x for x in lyrics if x])
         for sen_pos, lyric in enumerate(lyrics):
             for word_pos, token in enumerate(stem(lyric)):
-                # token_db = list(db.inverted_index.find({ 'token': token, 'song_id': song['_id']}))
                 db.words.insert_one(
-                    { 'token': token, 'song_id': song['_id'], 'sen_pos': sen_pos, 'word_pos': word_pos }
+                    { 'token': token, 'song': song['title'], 'sen_pos': sen_pos, 'word_pos': word_pos }
                 )
-                # if len(token_db) == 0:
-                #     db.inverted_index.insert_one(
-                #         { 'token': token, 'song_id': song['_id'], 'count': 1 }
-                #     )
-                # else:
-                #     db.inverted_index.update_one(
-                #         { '_id': token_db[0]['_id'], 'song_id': song['_id'] }, 
-                #         { '$set': { 'count': token_db[0]['count'] + 1 } }
-                #     )
+
+def tfidf(words_match):
+
+    return words_sort
+
+def parse(query):
+    """
+    Parse query to search
+    """
+    db.temp.delete_many({})
+    tokens = stem(query)
+    
+    for token in tokens:
+        words_match = list(db.words.find({ 'token': token }))
+        if len(words_match) != 0:
+            # words_sort = tfidf(words_match)
+            db.temp.insert_many(words_match)
+
+    pipeline = [
+        { '$lookup':
+        {
+            'from': 'temp',
+            'localField': 'title',
+            'foreignField': 'song',
+            'as': 'match_titles',
+        }},
+        { '$match': 
+        { 
+            'match_titles': { '$ne' : [] } 
+        }}
+    ]
+    songs = db.songs.aggregate(pipeline)
+    if len(list(db.temp.find())) == 0:
+        songs = [] # empty result
+
+    return list(songs)

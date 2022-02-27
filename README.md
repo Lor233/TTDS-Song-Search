@@ -7,6 +7,7 @@ Before installing packages, it is recommended to configure a virtual environment
 pip install -r requirements.txt
 ```
 [Flask](https://github.com/pallets/flask) is used to construct search engine framework.
+
 [Flask-Pymongo](https://github.com/dcrosta/flask-pymongo) is used to connect Flask and MongoDB.
 
 ## Run Song Search Engine

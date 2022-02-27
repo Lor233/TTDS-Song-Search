@@ -6,7 +6,7 @@ from songsearch.search import invertedIndex
 @app.cli.command()
 def clear():
     # Clear the collection
-    db.inverted_index.delete_many({})
+    db.temp.delete_many({})
     db.words.delete_many({})
 
     click.echo('Collection cleared.')
