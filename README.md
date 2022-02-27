@@ -3,19 +3,11 @@ Lyrics search engine demo project.
 
 ## Install Requirements
 Before installing packages, it is recommended to configure a virtual environment using [Conda](https://docs.conda.io/en/latest/miniconda.html)
-
-### Install Flask
+```
+pip install -r requirements.txt
+```
 [Flask](https://github.com/pallets/flask) is used to construct search engine framework.
-```
-pip install -U Flask
-```
-
-### Install Flask-Pymongo
 [Flask-Pymongo](https://github.com/dcrosta/flask-pymongo) is used to connect Flask and MongoDB.
-```
-pip install flask-pymongo
-pip install pymongo
-```
 
 ## Run Song Search Engine
 Enter the example project.
