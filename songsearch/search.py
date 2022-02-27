@@ -1,9 +1,13 @@
 import re
+from turtle import pos
 import numpy as np
 from nltk.stem import PorterStemmer
 from tqdm import tqdm
+from math import log10
 
 from songsearch import db
+
+N = len(list(db.songs.find()))
 
 def stem(text):
     """
@@ -31,9 +35,18 @@ def invertedIndex():
                     { 'token': token, 'song': song['title'], 'sen_pos': sen_pos, 'word_pos': word_pos }
                 )
 
-def tfidf(words_match):
+def tfidf(tokens):
+    scores = dict.fromkeys(db.temp.find({}, { 'song': 1 }).distinct('song'), 0)
+    # Construct dictionary of doc_or with TFIDF scores
+    for token in tokens:
+        df = len(list(db.temp.find({ 'token': token }).distinct('song')))
+        for word in db.temp.find({ 'token': token }):
+            tf = db.temp.count_documents({ 'token': token, 'song': word['song'] })
+            scores[word['song']] += (1+log10(tf))*log10(N/df)
 
-    return words_sort
+    sort_scores = sorted(scores.items(), key=lambda item:item[1], reverse=True)
+    # print(sort_scores)
+    return sort_scores
 
 def parse(query):
     """
@@ -45,24 +58,27 @@ def parse(query):
     for token in tokens:
         words_match = list(db.words.find({ 'token': token }))
         if len(words_match) != 0:
-            # words_sort = tfidf(words_match)
             db.temp.insert_many(words_match)
 
-    pipeline = [
-        { '$lookup':
-        {
-            'from': 'temp',
-            'localField': 'title',
-            'foreignField': 'song',
-            'as': 'match_titles',
-        }},
-        { '$match': 
-        { 
-            'match_titles': { '$ne' : [] } 
-        }}
-    ]
-    songs = db.songs.aggregate(pipeline)
-    if len(list(db.temp.find())) == 0:
+    if len(list(db.temp.find())) != 0:
+        sort = tfidf(tokens)
+
+        pipeline = [
+            { '$lookup':
+            {
+                'from': 'temp',
+                'localField': 'title',
+                'foreignField': 'song',
+                'as': 'match_titles',
+            }},
+            { '$match': 
+            { 
+                'match_titles': { '$ne' : [] } 
+            }}
+        ]
+        songs = db.songs.aggregate(pipeline)
+        songs = sorted(list(songs), key=lambda x:dict(sort)[x['title']], reverse=True)
+    else:
         songs = [] # empty result
 
     return list(songs)

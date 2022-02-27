@@ -43,8 +43,6 @@ def search(content):
     # find best and first match lyric
     lyrics = songs[0]['lyrics'].replace("\r", "").split('\n')
     lyrics = np.array([x for x in lyrics if x])
-    print(len(songs))
-    print(songs[0]['match_titles'])
     pos = songs[0]['match_titles'][0]['sen_pos'] if len(songs[0]['match_titles'])!=0 else 0
 
     # boundary judgment
