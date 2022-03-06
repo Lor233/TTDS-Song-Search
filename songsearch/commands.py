@@ -1,7 +1,7 @@
 import click, json
 
 from songsearch import app, db
-from songsearch.search import invertedIndex
+# from songsearch.search import invertedIndex
 
 @app.cli.command()
 def clear():
@@ -22,11 +22,11 @@ def forge():
 
     click.echo('Generation done.')
 
-@app.cli.command()
-def generateindex():
-    invertedIndex()
+# @app.cli.command()
+# def generateindex():
+#     invertedIndex()
 
-    click.echo('Inverted Index Generated.')
+#     click.echo('Inverted Index Generated.')
 
 @app.cli.command()
 def read():

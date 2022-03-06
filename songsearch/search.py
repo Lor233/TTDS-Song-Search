@@ -79,7 +79,7 @@ def search_pair(dict_1, dict_2):
         if title in dict_2:
             for sen_pos in dict_1[title]:
                 if sen_pos in dict_2[title]:
-                    if title not in result[title]:
+                    if title not in result:
                         result[title] = {}
                     if sen_pos not in result[title]:
                         result[title][sen_pos] = set()
