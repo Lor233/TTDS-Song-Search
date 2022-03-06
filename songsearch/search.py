@@ -1,13 +1,11 @@
+import json
+import math
 import re
-from turtle import pos
 import numpy as np
+
 from nltk.stem import PorterStemmer
-from tqdm import tqdm
-from math import log10
 
 from songsearch import db
-
-N = len(list(db.songs.find()))
 
 def stem(text):
     """
@@ -22,63 +20,106 @@ def stem(text):
     tokens = [stemmer.stem(x.lower()) for x in tokens]
     return tokens
 
-def invertedIndex():
-    """
-    Generate inverted index based on DB data
-    """
-    for song in tqdm(db.songs.find({}), total=db.songs.count_documents({})):
-        lyrics = song['lyrics'].replace("\r", "").split('\n')
-        lyrics = np.array([x for x in lyrics if x])
-        for sen_pos, lyric in enumerate(lyrics):
-            for word_pos, token in enumerate(stem(lyric)):
-                db.words.insert_one(
-                    { 'token': token, 'song': song['title'], 'sen_pos': sen_pos, 'word_pos': word_pos }
-                )
+def new_data(path):
+    term_seq = []
+    data_dict = {}
 
-def tfidf(tokens):
-    scores = dict.fromkeys(db.temp.find({}, { 'song': 1 }).distinct('song'), 0)
-    # Construct dictionary of doc_or with TFIDF scores
-    for token in tokens:
-        df = len(list(db.temp.find({ 'token': token }).distinct('song')))
-        for word in db.temp.find({ 'token': token }):
-            tf = db.temp.count_documents({ 'token': token, 'song': word['song'] })
-            scores[word['song']] += (1+log10(tf))*log10(N/df)
+    with open(path, 'r') as f:
+        songs = json.load(f)
+        for song in songs:
+            # text = str(song['title']) + '\n' + str(song['artist']) + '\n' + str(song['lyrics'])
+            text = song['lyrics']
+            lyrics = text.lower().strip('\xa0').replace('\r', '').split('\n')
+            data_dict[song['title']] = [a for a in lyrics if a]
+            
+            for sen_pos, lyric in enumerate(np.array(data_dict[song['title']])):
+                for word_pos, token in enumerate(stem(lyric)):
+                    tup = (token, song['title'], sen_pos, word_pos)
+                    term_seq.append(tup)
 
-    sort_scores = sorted(scores.items(), key=lambda item:item[1], reverse=True)
-    # print(sort_scores)
-    return sort_scores
+    inv = gen_index(term_seq)
+
+    return data_dict, inv
+
+def gen_index(term_seq):
+    # {'cause': {'262': {7: [0,1]} } }
+    inv = {}
+
+    for tu in term_seq:
+        if tu[0] not in inv:
+            inv[tu[0]] = {}
+        if tu[1] not in inv[tu[0]]:
+            inv[tu[0]][tu[1]] = {}
+        if tu[2] not in inv[tu[0]][tu[1]]:
+            inv[tu[0]][tu[1]][tu[2]] = [tu[3]]
+        inv[tu[0]][tu[1]][tu[2]].append(tu[3])
+
+    return inv
+
+def rank(N, tokens, result, inv):
+    ranked_result = {}
+
+    for title in result:
+        score = 0
+        for token in tokens:
+            df = len(inv[token])
+            tf = len(inv[token][title])
+            w = (1 + math.log10(tf)) * math.log10(N / df)
+            score += w
+        ranked_result[title] = score
+
+    sorted_dict = {k: v for k, v in sorted(result.items(), key=lambda x: ranked_result[x[0]], reverse=True)}
+
+    return sorted_dict
+
+def search_pair(dict_1, dict_2):
+    result = {}
+    
+    for title in dict_1:
+        if title in dict_2:
+            for sen_pos in dict_1[title]:
+                if sen_pos in dict_2[title]:
+                    if title not in result[title]:
+                        result[title] = {}
+                    if sen_pos not in result[title]:
+                        result[title][sen_pos] = set()
+                    result[title][sen_pos] = result[title][sen_pos] | set(dict_1[title][sen_pos]) | set(dict_2[title][sen_pos])
+                            
+    return result
+
+def search(tokens, inv):
+    t = []
+
+    if len(tokens) == 1:
+        return inv[tokens[0]]
+
+    for i in range(len(tokens) - 1):
+        r = search_pair(inv[tokens[i]], inv[tokens[i+1]])
+        if len(t) == 0:
+            t = r
+        else:
+            t = {k:{s:set(t[k][s] | r[k][s]) for s in t[k].keys() & r[k].keys()} for k in t.keys() & r.keys()}
+    return t
 
 def parse(query):
-    """
-    Parse query to search
-    """
-    db.temp.delete_many({})
     tokens = stem(query)
-    
+
     for token in tokens:
-        words_match = list(db.words.find({ 'token': token }))
-        if len(words_match) != 0:
-            db.temp.insert_many(words_match)
+        if token not in inv:
+            return [], []
+            
+    result = search(tokens, inv)
+    sorted_dict = rank(N, tokens, result, inv)
+    songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
 
-    if len(list(db.temp.find())) != 0:
-        sort = tfidf(tokens)
+    return list(songs), sorted_dict
 
-        pipeline = [
-            { '$lookup':
-            {
-                'from': 'temp',
-                'localField': 'title',
-                'foreignField': 'song',
-                'as': 'match_titles',
-            }},
-            { '$match': 
-            { 
-                'match_titles': { '$ne' : [] } 
-            }}
-        ]
-        songs = db.songs.aggregate(pipeline)
-        songs = sorted(list(songs), key=lambda x:dict(sort)[x['title']], reverse=True)
-    else:
-        songs = [] # empty result
+data_dict, inv = new_data('./artist-page.json')
+N = len(data_dict)
 
-    return list(songs)
+
+
+
+
+
+

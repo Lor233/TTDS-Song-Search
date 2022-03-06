@@ -34,7 +34,7 @@ def search(content):
             return redirect(url_for('search', content=content))
         return redirect(url_for('search', content=escape(new_content)))
 
-    songs = list(parse(content))
+    songs, sorted_dict = list(parse(content))
 
     if len(songs) == 0:
         runtime = round(time.time() - start_time + 0.005, 2)
@@ -43,7 +43,9 @@ def search(content):
     # find best and first match lyric
     lyrics = songs[0]['lyrics'].replace("\r", "").split('\n')
     lyrics = np.array([x for x in lyrics if x])
-    pos = songs[0]['match_titles'][0]['sen_pos'] if len(songs[0]['match_titles'])!=0 else 0
+    sort_sen = {k: v for k, v in sorted(sorted_dict[songs[0]['title']].items(), key=lambda x: len(x[1]), reverse=True)}
+    pos = list(sort_sen.items())[0][0]
+
 
     # boundary judgment
     if pos == 0:
