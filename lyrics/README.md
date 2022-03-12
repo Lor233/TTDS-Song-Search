@@ -17,22 +17,15 @@ Enter the example project.
 cd lyrics
 ```
 
-### Crawl one song
-Example song: [Love Is Perverse](https://www.lyrics.com/sublyric/122508/The+Immaculate+Crows/Love+Is+Perverse)
-```
-scrapy crawl lyrics -O lyrics.json
-```
-
-### Crawl songs of one artist
-Example artist: [A 5 C V Maurice Avatar](https://www.lyrics.com/artist/A-5-C-V-Maurice-Avatar/2137939183)
-```
-scrapy crawl artist -O artist.json
-```
-
-### Crawl songs of one page artists
+### Crawl songs of one page 'A' artists
 Example page: [artists start with 'a' (1st page)](https://www.lyrics.com/artists/A)
 ```
-scrapy crawl artist-page -O artist-page.json
+scrapy crawl artist-page -O artist-page.json -s LOG_FILE=scrapy.log 
+```
+
+### Crawl songs of all pages 'A' artists
+```
+scrapy crawl artist-pages -O artist-pages.json -s LOG_FILE=scrapy_s.log
 ```
 
 ## Useful Docs
