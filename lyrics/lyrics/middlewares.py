@@ -8,6 +8,11 @@ from scrapy import signals
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
+from scrapy.downloadermiddlewares.retry import RetryMiddleware
+from scrapy.utils.response import response_status_message
+
+import random, time
+
 
 class LyricsSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -17,7 +22,9 @@ class LyricsSpiderMiddleware:
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls()
+        s = cls(
+            user_agent=crawler.settings.get('MY_USER_AGENT')
+        )
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
@@ -61,10 +68,13 @@ class LyricsDownloaderMiddleware:
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
 
+    def __init__(self, user_agent):
+        self.user_agent = user_agent
+
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls()
+        s = cls(user_agent=crawler.settings.get('MY_USER_AGENT'))
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
@@ -78,6 +88,13 @@ class LyricsDownloaderMiddleware:
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
+
+        agent = random.choice(self.user_agent)
+        request.headers['User-Agent'] = agent
+
+        # proxy = "http://4fe57a46cc4f469c8c40d619908bb954:@proxy.crawlera.com:8011/"
+        # request.meta["proxy"] = proxy
+
         return None
 
     def process_response(self, request, response, spider):
@@ -87,6 +104,14 @@ class LyricsDownloaderMiddleware:
         # - return a Response object
         # - return a Request object
         # - or raise IgnoreRequest
+
+        # if response.status == 403:
+        #     print("403 wait 5min:" + proxy)
+        #     spider.crawler.engine.pause()
+        #     await async_sleep(delay)
+        #     spider.crawler.engine.unpause()
+        #     return request
+
         return response
 
     def process_exception(self, request, exception, spider):
@@ -101,3 +126,28 @@ class LyricsDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class TooManyRequestsRetryMiddleware(RetryMiddleware):
+
+    def __init__(self, crawler):
+        super(TooManyRequestsRetryMiddleware, self).__init__(crawler.settings)
+        self.crawler = crawler
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_response(self, request, response, spider):
+        if request.meta.get('dont_retry', False):
+            return response
+        elif response.status == 403:
+            self.crawler.engine.pause()
+            time.sleep(300) # If the rate limit is renewed in a minute, put 60 seconds, and so on.
+            self.crawler.engine.unpause()
+            reason = response_status_message(response.status)
+            return self._retry(request, reason, spider) or response
+        elif response.status in self.retry_http_codes:
+            reason = response_status_message(response.status)
+            return self._retry(request, reason, spider) or response
+        return response 

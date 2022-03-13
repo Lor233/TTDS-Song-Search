@@ -4,7 +4,12 @@ class LyricsSpider(scrapy.Spider):
     song_N = 0
     name = "artist-pages"
     start_urls = [
-        'https://www.lyrics.com/artists/A/99999',
+        # 'https://www.lyrics.com/artists/A/99999',
+        # 'https://www.lyrics.com/artists/B/99999',
+        # 'https://www.lyrics.com/artists/C/99999',
+        # 'https://www.lyrics.com/artists/D/99999',
+        'https://www.lyrics.com/artists/E/99999',
+        # 'https://www.lyrics.com/artists/F/99999',
     ]
 
     def parse(self, response):
