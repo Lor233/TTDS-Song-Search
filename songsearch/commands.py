@@ -3,7 +3,7 @@ from tqdm import tqdm
 import numpy as np
 
 from songsearch import app, db
-from songsearch.search import new_data
+from songsearch.search import new_data, gen_index
 
 @app.cli.command()
 def clear():
@@ -26,12 +26,14 @@ def forge():
 
 @app.cli.command()
 def index():
-    # Generate fake data
-    _, inv = new_data('./songs_combine.json')
+    _, term_seq = new_data('./songs_combine.json')
+    np.save('./lyrics/data/term_seq', term_seq)
 
-    # np.save('inv', inv)
+    # term_seq = np.load('./lyrics/data/term_seq')
 
-    np.save('./lyrics/data/inv', inv)
+    # inv = gen_index(term_seq)
+
+    # np.save('./lyrics/data/inv', inv)
 
     click.echo('Index Generation done.')
 

@@ -6,4 +6,5 @@ __pycache__
 .env
 lyrics/temp
 lyrics/results
+lyrics/data
 songs_combine.json

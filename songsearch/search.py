@@ -3,6 +3,7 @@ import math
 import re
 import numpy as np
 
+from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from tqdm import tqdm
 
@@ -18,7 +19,8 @@ def stem(text):
     tokens = re.findall("[\w]+", text)
     # Covert words to lower case, stem them with Porter stemming
     stemmer = PorterStemmer()
-    tokens = [stemmer.stem(x.lower()) for x in tokens]
+    stop_words = set(stopwords.words('english')) 
+    tokens = [stemmer.stem(x.lower()) for x in tokens if x.lower() not in stop_words]
     return tokens
 
 def new_data(path):
@@ -38,20 +40,27 @@ def new_data(path):
                     tup = (token, song['title'], sen_pos, word_pos)
                     term_seq.append(tup)
 
-    inv = gen_index(term_seq)
-
-    return data_dict, inv
+    return data_dict, term_seq
 
 def gen_index(term_seq):
     # {'cause': {'262': {7: [0,1]} } }
     inv = {}
 
+    # for tu in tqdm(term_seq):
+    #     if tu[0] not in inv:
+    #         inv[tu[0]] = {}
+    #     if tu[1] not in inv[tu[0]]:
+    #         inv[tu[0]][tu[1]] = {}
+    #     if tu[2] not in inv[tu[0]][tu[1]]:
+    #         inv[tu[0]][tu[1]][tu[2]] = [tu[3]]
+    #     inv[tu[0]][tu[1]][tu[2]].append(tu[3])
+
     for tu in tqdm(term_seq):
-        if tu[0] not in inv:
+        if inv.get(tu[0], -1) == -1:
             inv[tu[0]] = {}
-        if tu[1] not in inv[tu[0]]:
+        if inv[tu[0]].get(tu[1], -1) == -1:
             inv[tu[0]][tu[1]] = {}
-        if tu[2] not in inv[tu[0]][tu[1]]:
+        if inv[tu[0]][tu[1]].get(tu[2], -1) == -1:
             inv[tu[0]][tu[1]][tu[2]] = [tu[3]]
         inv[tu[0]][tu[1]][tu[2]].append(tu[3])
 
