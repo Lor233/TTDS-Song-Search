@@ -11,6 +11,8 @@ from itemadapter import is_item, ItemAdapter
 from scrapy.downloadermiddlewares.retry import RetryMiddleware
 from scrapy.utils.response import response_status_message
 
+from fake_useragent import UserAgent
+
 import random, time
 
 
@@ -68,13 +70,15 @@ class LyricsDownloaderMiddleware:
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
 
-    def __init__(self, user_agent):
-        self.user_agent = user_agent
+    def __init__(self, user_agent='chrome'):
+        # self.user_agent = user_agent
+        self.user_agent = UserAgent()
 
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls(user_agent=crawler.settings.get('MY_USER_AGENT'))
+        # s = cls(user_agent=crawler.settings.get('MY_USER_AGENT'))
+        s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
@@ -89,8 +93,13 @@ class LyricsDownloaderMiddleware:
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
 
-        agent = random.choice(self.user_agent)
+        # agent = random.choice(self.user_agent)
+        agent = self.user_agent.random
         request.headers['User-Agent'] = agent
+
+        ref = 'https://www.lyrics.com/artists/' + f'{random.randint(1,1500)}'
+        # ref = 'https://www.google.com/' + f'{random.randint(-1500,1)}'
+        request.headers['Referer'] = ref
 
         # proxy = "http://4fe57a46cc4f469c8c40d619908bb954:@proxy.crawlera.com:8011/"
         # request.meta["proxy"] = proxy
@@ -133,6 +142,7 @@ class TooManyRequestsRetryMiddleware(RetryMiddleware):
     def __init__(self, crawler):
         super(TooManyRequestsRetryMiddleware, self).__init__(crawler.settings)
         self.crawler = crawler
+        self.user_agent = UserAgent()
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -143,8 +153,19 @@ class TooManyRequestsRetryMiddleware(RetryMiddleware):
             return response
         elif response.status == 403:
             self.crawler.engine.pause()
+            print(f'{time.asctime( time.localtime(time.time()) )}: 403 wait Start')
             time.sleep(300) # If the rate limit is renewed in a minute, put 60 seconds, and so on.
+            print(f'{time.asctime( time.localtime(time.time()) )}: 403 wait End')
             self.crawler.engine.unpause()
+
+            agent = self.user_agent.random
+            request.headers['User-Agent'] = agent
+
+            # ref = 'https://www.lyrics.com/' + f'{random.randint(1,1500)}'
+            ref = 'https://www.lyrics.com/artists/' + f'{random.randint(1,1500)}'
+            # ref = 'https://www.google.com/' + f'{random.randint(-1500,1)}'
+            request.headers['Referer'] = ref
+
             reason = response_status_message(response.status)
             return self._retry(request, reason, spider) or response
         elif response.status in self.retry_http_codes:

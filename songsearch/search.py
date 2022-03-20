@@ -4,6 +4,7 @@ import re
 import numpy as np
 
 from nltk.stem import PorterStemmer
+from tqdm import tqdm
 
 from songsearch import db
 
@@ -24,9 +25,9 @@ def new_data(path):
     term_seq = []
     data_dict = {}
 
-    with open(path, 'r') as f:
+    with open(path, 'r+', encoding='utf-8') as f:
         songs = json.load(f)
-        for song in songs:
+        for song in tqdm(songs):
             # text = str(song['title']) + '\n' + str(song['artist']) + '\n' + str(song['lyrics'])
             text = song['lyrics']
             lyrics = text.lower().strip('\xa0').replace('\r', '').split('\n')
@@ -45,7 +46,7 @@ def gen_index(term_seq):
     # {'cause': {'262': {7: [0,1]} } }
     inv = {}
 
-    for tu in term_seq:
+    for tu in tqdm(term_seq):
         if tu[0] not in inv:
             inv[tu[0]] = {}
         if tu[1] not in inv[tu[0]]:
@@ -114,8 +115,10 @@ def parse(query):
 
     return list(songs), sorted_dict
 
-data_dict, inv = new_data('./artist-page.json')
-N = len(data_dict)
+# data_dict, inv = new_data('./artist-page.json')
+
+# inv = np.load('./lyrics/data/inv.npy')
+# N = len(data_dict)
 
 
 

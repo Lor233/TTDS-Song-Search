@@ -4,7 +4,7 @@ import numpy as np
 from flask import render_template, request, url_for, redirect, flash, escape
 
 from songsearch import app, db
-from songsearch.search import parse
+# from songsearch.search import parse
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

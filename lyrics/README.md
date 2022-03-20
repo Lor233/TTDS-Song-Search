@@ -25,7 +25,7 @@ scrapy crawl artist-page -O artist-page.json -s LOG_FILE=scrapy.log
 
 ### Crawl songs of all pages 'A' artists
 ```
-scrapy crawl artist-pages -O artist-pages.json -s LOG_FILE=scrapy_s.log
+scrapy crawl artist-pages -O artist-pages-a.json -s LOG_FILE=scrapy_s.log
 ```
 
 ## Useful Docs

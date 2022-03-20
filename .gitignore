@@ -4,3 +4,6 @@ __pycache__
 .DS_Store
 *.db
 .env
+lyrics/temp
+lyrics/results
+songs_combine.json
