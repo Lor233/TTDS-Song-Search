@@ -1,4 +1,4 @@
-import re
+import re, json, time
 from turtle import pos
 import numpy as np
 from tqdm import tqdm
@@ -29,6 +29,7 @@ def invertedIndex():
     """
     Generate inverted index based on DB data
     """
+
     inv = []
 
     for song in tqdm(db.songs.find({}), total=db.songs.count_documents({})):
@@ -39,8 +40,28 @@ def invertedIndex():
                 inv.append(
                     { 'token': token, 'song': song['title'], 'sen_pos': sen_pos, 'word_pos': word_pos }
                 )
-    
+
+    path = 'term_seq.json'
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('[\n')
+        for i, s in tqdm(enumerate(inv), total=len(inv)):
+            json.dump(s, f, ensure_ascii=False)
+            if i != len(inv)-1:
+                f.write(',\n')
+            else:
+                f.write('\n')
+        f.write(']')
+
+    path = 'term_seq.json'
+    with open(path, 'r+', encoding='utf-8') as f:
+        inv = json.load(f)
+
+    start_time = time.time()
+
     db.words.insert_many(inv)
+
+    print(round(time.time() - start_time, 5))
+
 
 def tfidf(tokens):
 

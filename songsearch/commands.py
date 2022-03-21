@@ -16,6 +16,7 @@ def clear():
 @app.cli.command()
 def forge():
     # Generate fake data
+    # path = './a.json'
     # path = './artist-page.json'
     path = './songs_combine.json'
     with open(path, 'r+', encoding='utf-8') as f:
