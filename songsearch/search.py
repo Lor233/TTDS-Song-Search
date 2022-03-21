@@ -1,9 +1,11 @@
 import re
 from turtle import pos
 import numpy as np
-from nltk.stem import PorterStemmer
 from tqdm import tqdm
 from math import log10
+
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 
 from songsearch import db
 
@@ -19,23 +21,31 @@ def stem(text):
     tokens = re.findall("[\w]+", text)
     # Covert words to lower case, stem them with Porter stemming
     stemmer = PorterStemmer()
-    tokens = [stemmer.stem(x.lower()) for x in tokens]
+    stop_words = set(stopwords.words('english')) 
+    tokens = [stemmer.stem(x.lower()) for x in tokens if x.lower() not in stop_words]
     return tokens
 
 def invertedIndex():
     """
     Generate inverted index based on DB data
     """
+    inv = []
+
     for song in tqdm(db.songs.find({}), total=db.songs.count_documents({})):
         lyrics = song['lyrics'].replace("\r", "").split('\n')
         lyrics = np.array([x for x in lyrics if x])
         for sen_pos, lyric in enumerate(lyrics):
             for word_pos, token in enumerate(stem(lyric)):
-                db.words.insert_one(
+                inv.append(
                     { 'token': token, 'song': song['title'], 'sen_pos': sen_pos, 'word_pos': word_pos }
                 )
+    
+    db.words.insert_many(inv)
 
 def tfidf(tokens):
+
+    db.temp.create_index('token')
+
     scores = dict.fromkeys(db.temp.find({}, { 'song': 1 }).distinct('song'), 0)
     # Construct dictionary of doc_or with TFIDF scores
     for token in tokens:
@@ -59,6 +69,8 @@ def parse(query):
         words_match = list(db.words.find({ 'token': token }))
         if len(words_match) != 0:
             db.temp.insert_many(words_match)
+
+    db.temp.create_index('song')
 
     if len(list(db.temp.find())) != 0:
         sort = tfidf(tokens)

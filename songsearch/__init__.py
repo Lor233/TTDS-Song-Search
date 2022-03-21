@@ -10,4 +10,7 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/songsearch"
 
 db = PyMongo(app).db
 
+db.songs.create_index('title')
+db.words.create_index('token')
+
 from songsearch import views, errors, commands, search
