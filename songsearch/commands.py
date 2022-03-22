@@ -23,7 +23,7 @@ def forge():
         songs = json.load(f)
 
     for s in tqdm(songs):
-        db.songs.insert_one(s)
+        db.songs.insert_one({'title':s['title'], 'artist':s['artist'], 'duration':s['duration'], 'lyrics':s['lyrics']})
 
     click.echo('Generation done.')
 

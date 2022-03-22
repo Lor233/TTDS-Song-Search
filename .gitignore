@@ -5,4 +5,5 @@ __pycache__
 *.db
 .env
 # songs_combine.json
+term_seq.json
 venv

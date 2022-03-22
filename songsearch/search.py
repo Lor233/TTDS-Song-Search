@@ -1,8 +1,8 @@
 import re, json, time
-from turtle import pos
 import numpy as np
 from tqdm import tqdm
 from math import log10
+from collections import defaultdict
 
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
@@ -29,7 +29,6 @@ def invertedIndex():
     """
     Generate inverted index based on DB data
     """
-
     inv = []
 
     for song in tqdm(db.songs.find({}), total=db.songs.count_documents({})):
@@ -41,20 +40,20 @@ def invertedIndex():
                     { 'token': token, 'song': song['title'], 'sen_pos': sen_pos, 'word_pos': word_pos }
                 )
 
-    path = 'term_seq.json'
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write('[\n')
-        for i, s in tqdm(enumerate(inv), total=len(inv)):
-            json.dump(s, f, ensure_ascii=False)
-            if i != len(inv)-1:
-                f.write(',\n')
-            else:
-                f.write('\n')
-        f.write(']')
+    # path = 'term_seq.json'
+    # with open(path, 'w', encoding='utf-8') as f:
+    #     f.write('[\n')
+    #     for i, s in tqdm(enumerate(inv), total=len(inv)):
+    #         json.dump(s, f, ensure_ascii=False)
+    #         if i != len(inv)-1:
+    #             f.write(',\n')
+    #         else:
+    #             f.write('\n')
+    #     f.write(']')
 
-    path = 'term_seq.json'
-    with open(path, 'r+', encoding='utf-8') as f:
-        inv = json.load(f)
+    # path = 'term_seq.json'
+    # with open(path, 'r+', encoding='utf-8') as f:
+    #     inv = json.load(f)
 
     start_time = time.time()
 
@@ -67,10 +66,12 @@ def tfidf(tokens):
 
     db.temp.create_index('token')
 
-    scores = dict.fromkeys(db.temp.find({}, { 'song': 1 }).distinct('song'), 0)
+    # scores = dict.fromkeys(db.temp.find({}, { 'song': 1 }).distinct('song'), 0)
+    scores = defaultdict(int)
     # Construct dictionary of doc_or with TFIDF scores
     for token in tokens:
-        df = len(list(db.temp.find({ 'token': token }).distinct('song')))
+        df = len(db.temp.find({ 'token': token }).distinct('song'))
+        # df = db.temp.distinct('song').count_documents({ 'token': token })
         for word in db.temp.find({ 'token': token }):
             tf = db.temp.count_documents({ 'token': token, 'song': word['song'] })
             scores[word['song']] += (1+log10(tf))*log10(N/df)
@@ -87,14 +88,32 @@ def parse(query):
     tokens = stem(query)
     
     for token in tokens:
-        words_match = list(db.words.find({ 'token': token }))
-        if len(words_match) != 0:
-            db.temp.insert_many(words_match)
+
+        start_time = time.time()
+        # words_match = list(db.words.find({ 'token': token }))
+        # print(1)
+        # print(round(time.time() - start_time, 5))
+
+        # if len(words_match) != 0:
+        if db.words.count_documents({ 'token': token }) != 0:
+            db.temp.insert_many(db.words.find({ 'token': token }))
+
+        print(1)
+        print(round(time.time() - start_time, 5))
+
+    start_time = time.time()
 
     db.temp.create_index('song')
 
+    print(round(time.time() - start_time, 5))
+
     if len(list(db.temp.find())) != 0:
+
+        start_time = time.time()
+
         sort = tfidf(tokens)
+
+        print(round(time.time() - start_time, 5))
 
         pipeline = [
             { '$lookup':
