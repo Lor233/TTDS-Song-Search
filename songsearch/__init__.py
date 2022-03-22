@@ -15,15 +15,7 @@ db = PyMongo(app).db
 
 N = db.songs.count_documents({})
 
-def gen_index(term_seq):
-    inv = defaultdict(dict)
-    for term in tqdm(term_seq, total=db.words.count_documents({})):
-        (idx, token, title, sen, word) = term.values()
-        inv[token].setdefault(title, defaultdict(list))[sen].append(word)
 
-    return inv
-
-term_seq = db.words.find({})
-inv = gen_index(term_seq)
+# inv = gen_index(term_seq)
 
 from songsearch import views, errors, commands, search

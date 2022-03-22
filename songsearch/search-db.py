@@ -57,11 +57,17 @@ def gen_index(term_seq):
 def rank(N, tokens, result, inv):
     ranked_result = {}
 
+    def find_len(token):
+        return db.index.find_one({ 'token': token })
+
     for title in result:
         score = 0
         for token in tokens:
-            df = len(inv[token])
-            tf = len(inv[token][title])
+            # df = len(inv[token])
+            df = db.index.count_documents({ 'token': token })
+            tf = db.index.count_documents({ 'token': token, 'title': title })
+            # tf = len(inv[token][title])
+
             w = (1 + math.log10(tf)) * math.log10(N / df)
             score += w
         ranked_result[title] = score
@@ -85,15 +91,18 @@ def search_pair(dict_1, dict_2):
                             
     return result
 
-def search(tokens, inv):
+def search(tokens):
     t = []
 
+    def find_one(token):
+        return db.index.find_one({ 'token': token })
+
     if len(tokens) == 1:
-        # return inv[tokens[0]]
-        return inv[tokens[0]]
+        return find_one(tokens[0])['titles']
 
     for i in range(len(tokens) - 1):
-        r = search_pair(inv[tokens[i]], inv[tokens[i+1]])
+        # r = search_pair(inv[tokens[i]], inv[tokens[i+1]])
+        r = search_pair(find_one(tokens[i]), find_one(tokens[i+1]))
         if len(t) == 0:
             t = r
         else:

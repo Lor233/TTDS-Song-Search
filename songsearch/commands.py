@@ -35,11 +35,11 @@ def index():
     with open('./index.pkl', 'wb') as f:
         pickle.dump(songs, f)
     psavetime = round(time.time() - start_time + 0.005, 5)
+    print(f'Inv pickle done with {psavetime}s.')
 
-
-    # start_time = time.time()
-    # db.index.insert_many(inv)
-    # print(round(time.time() - start_time, 5))
+    start_time = time.time()
+    db.index.insert_many(inv)
+    print(round(time.time() - start_time, 5))
 
     click.echo(f'Index Generation done with {psavetime}s.')
 
