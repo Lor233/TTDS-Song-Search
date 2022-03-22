@@ -8,4 +8,5 @@ lyrics/temp
 lyrics/results
 lyrics/data
 songs_combine.json
+term_seq.json
 venv

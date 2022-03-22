@@ -89,6 +89,7 @@ def search(tokens, inv):
     t = []
 
     if len(tokens) == 1:
+        # return inv[tokens[0]]
         return inv[tokens[0]]
 
     for i in range(len(tokens) - 1):
@@ -103,20 +104,14 @@ def parse(query):
     tokens = stem(query)
 
     for token in tokens:
-        if token not in inv:
+        if db.index.count_documents({ 'token': token }) == 0:
             return [], []
             
-    result = search(tokens, inv)
-    sorted_dict = rank(N, tokens, result, inv)
+    result = search(tokens)
+    sorted_dict = rank(N, tokens, result)
     songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
 
     return list(songs), sorted_dict
-
-# data_dict, inv = new_data('./artist-page.json')
-
-# inv = np.load('./lyrics/data/inv.npy')
-# N = len(data_dict)
-# N = db.songs.count_documents({})
 
 
 

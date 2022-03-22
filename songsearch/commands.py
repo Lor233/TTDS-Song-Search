@@ -9,7 +9,7 @@ from songsearch.search import new_data, gen_index
 def clear():
     # Clear the collection
     db.temp.delete_many({})
-    db.words.delete_many({})
+    # db.words.delete_many({})
 
     click.echo('Collection cleared.')
 
@@ -26,16 +26,22 @@ def forge():
 
 @app.cli.command()
 def index():
-    _, term_seq = new_data('./songs_combine.json')
-    np.save('./lyrics/data/term_seq', term_seq)
 
-    # term_seq = np.load('./lyrics/data/term_seq')
+    term_seq = db.words.find({})
 
-    # inv = gen_index(term_seq)
+    inv = gen_index(term_seq)
 
-    # np.save('./lyrics/data/inv', inv)
+    start_time = time.time()
+    with open('./index.pkl', 'wb') as f:
+        pickle.dump(songs, f)
+    psavetime = round(time.time() - start_time + 0.005, 5)
 
-    click.echo('Index Generation done.')
+
+    # start_time = time.time()
+    # db.index.insert_many(inv)
+    # print(round(time.time() - start_time, 5))
+
+    click.echo(f'Index Generation done with {psavetime}s.')
 
 @app.cli.command()
 def combine():
