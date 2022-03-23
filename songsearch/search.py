@@ -1,6 +1,4 @@
-import json
-import math
-import re
+import json, math, re, time
 import numpy as np
 from collections import defaultdict
 
@@ -8,7 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from tqdm import tqdm
 
-from songsearch import db, N
+from songsearch import db, N, inv
 
 def stem(text):
     """
@@ -50,7 +48,7 @@ def gen_index(term_seq):
 
     for term in tqdm(term_seq, total=db.words.count_documents({})):
         (idx, token, title, sen, word) = term.values()
-        inv[token].setdefault(title, defaultdict(list))[sen].append(word)
+        inv[token].setdefault(title, defaultdict(list))[str(sen)].append(word)
 
     return inv
 
@@ -102,15 +100,37 @@ def search(tokens, inv):
 def parse(query):
     tokens = stem(query)
 
+    if tokens == []:
+        return [], [], 0.00000
     for token in tokens:
         if token not in inv:
-            return [], []
+            return [], [], 0.00000
             
-    result = search(tokens, inv)
-    sorted_dict = rank(N, tokens, result, inv)
-    songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
+    # result = search(tokens, inv)
+    # sorted_dict = rank(N, tokens, result, inv)
+    # songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
 
-    return list(songs), sorted_dict
+    search_time = time.time()
+
+    start_time = time.time()
+    result = search(tokens, inv)
+    stime = round(time.time() - start_time + 0.005, 5)
+    print(f'Search done with {stime}s.')
+
+    start_time = time.time()
+    sorted_dict = rank(N, tokens, result, inv)
+    sotime = round(time.time() - start_time + 0.005, 5)
+    print(f'Rank done with {sotime}s.')
+
+    start_time = time.time()
+    songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } }).limit(20)
+    # songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
+    ftime = round(time.time() - start_time + 0.005, 5)
+    print(f'Find done with {ftime}s.')
+
+    searched_time = round(time.time() - search_time + 0.005, 5)
+
+    return list(songs), sorted_dict, searched_time
 
 # data_dict, inv = new_data('./artist-page.json')
 

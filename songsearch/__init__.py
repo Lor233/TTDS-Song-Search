@@ -1,4 +1,5 @@
-import os
+import os, time
+import pickle
 
 from tqdm import tqdm
 from collections import defaultdict
@@ -15,7 +16,11 @@ db = PyMongo(app).db
 
 N = db.songs.count_documents({})
 
-
-# inv = gen_index(term_seq)
+start_time = time.time()
+print(f'Inv load start.')
+with open('./index.pkl', 'rb') as f:
+    inv = pickle.load(f)
+loadtime = round(time.time() - start_time + 0.005, 5)
+print(f'Inv load done with {loadtime}s.')
 
 from songsearch import views, errors, commands, search

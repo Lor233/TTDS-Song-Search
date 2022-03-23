@@ -1,6 +1,7 @@
-import click, json
+import click, json, time
 from tqdm import tqdm
 import numpy as np
+import pickle
 
 from songsearch import app, db
 from songsearch.search import new_data, gen_index
@@ -33,12 +34,20 @@ def index():
 
     start_time = time.time()
     with open('./index.pkl', 'wb') as f:
-        pickle.dump(songs, f)
+        pickle.dump(inv, f)
     psavetime = round(time.time() - start_time + 0.005, 5)
     print(f'Inv pickle done with {psavetime}s.')
 
+    # start_time = time.time()
+    # with open('./index.pkl', 'rb') as f:
+    #     inv = pickle.load(f)
+    # loadtime = round(time.time() - start_time + 0.005, 5)
+    # print(f'Inv load done with {loadtime}s.')
+
+    inv_list = [{x[0]: x[1]} for x in inv.items()]
+
     start_time = time.time()
-    db.index.insert_many(inv)
+    db.index.insert_many(inv_list)
     print(round(time.time() - start_time, 5))
 
     click.echo(f'Index Generation done with {psavetime}s.')

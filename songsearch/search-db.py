@@ -50,7 +50,7 @@ def gen_index(term_seq):
 
     for term in tqdm(term_seq, total=db.words.count_documents({})):
         (idx, token, title, sen, word) = term.values()
-        inv[token].setdefault(title, defaultdict(list))[sen].append(word)
+        inv[token].setdefault(title, defaultdict(list))[str(sen)].append(word)
 
     return inv
 

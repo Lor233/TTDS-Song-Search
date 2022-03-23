@@ -10,3 +10,4 @@ lyrics/data
 songs_combine.json
 term_seq.json
 venv
+index.pkl
