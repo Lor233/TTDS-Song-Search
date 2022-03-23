@@ -15,27 +15,37 @@ def index():
         if not content or len(content) > 60:
             flash('Invalid search input.')
             return redirect(url_for('index'))
-        return redirect(url_for('search', content=escape(content)))
+        return redirect(url_for('search', content=escape(content), page=1))
 
-    random_pipe = [{ '$sample': { 'size': 13 } }]
-    songs = list(db.songs.aggregate(random_pipe))
     runtime = round(time.time() - start_time + 0.000005, 5)
+
+    random_pipe = [{ '$sample': { 'size': 10 } }]
+    songs = list(db.songs.aggregate(random_pipe))
 
     return render_template('index.html', songs=songs, runtime=runtime)
 
-@app.route('/search/<content>', methods=['GET', 'POST'])
-def search(content):
-
+@app.route('/search/<content>/<page>', methods=['GET', 'POST'])
+def search(content, page):
     page_num = 20
+    page_int = [0 + int(page) * page_num, (int(page) + 1) * page_num]
+    song_num = 0
+    songs = []
 
     if request.method == 'POST':
         new_content = request.form.get('content')
         if not new_content or len(new_content) > 60:
             flash('Invalid search input.')
-            return redirect(url_for('search', content=content))
-        return redirect(url_for('search', content=escape(new_content)))
+            return redirect(url_for('search', content=content), page=page)
+        return redirect(url_for('search', content=escape(new_content), page=1))
 
-    songs, sorted_dict, runtime = parse(content)
+    songs_cursor, sorted_dict, runtime = parse(content)
+
+    for song in songs_cursor:
+        if song_num == page_int[1]:
+            break
+        if song_num >= page_int[0]:
+            songs.append(song)
+        song_num += 1
 
     # start_time = time.time()
 
@@ -63,7 +73,7 @@ def search(content):
     if len(songs) == 1:
         return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=[], runtime=runtime, keep_input=content)
 
-    return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=songs[1:page_num], runtime=runtime, keep_input=content)
+    return render_template('search.html', lyrics_3=lyrics_3, best=songs[0], songs=songs[1:], runtime=runtime, keep_input=content)
 
 @app.route('/song/detail/<ObjectId:song_id>')
 def detail(song_id):

@@ -98,10 +98,13 @@ def search(tokens, inv):
     return t
 
 def parse(query):
+
     tokens = stem(query)
 
+    # Query just indeludes stop words
     if tokens == []:
         return [], [], 0.00000
+    # No matched songs
     for token in tokens:
         if token not in inv:
             return [], [], 0.00000
@@ -123,20 +126,16 @@ def parse(query):
     print(f'Rank done with {sotime}s.')
 
     start_time = time.time()
-    songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } }).limit(20)
-    # songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
+    # songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } }).limit(20)
+    songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
     ftime = round(time.time() - start_time + 0.000005, 5)
     print(f'Find done with {ftime}s.')
 
     searched_time = round(time.time() - search_time + 0.000005, 5)
 
-    return list(songs), sorted_dict, searched_time
+    return songs, sorted_dict, searched_time
+    # return list(songs), sorted_dict, searched_time
 
-# data_dict, inv = new_data('./artist-page.json')
-
-# inv = np.load('./lyrics/data/inv.npy')
-# N = len(data_dict)
-# N = db.songs.count_documents({})
 
 
 
