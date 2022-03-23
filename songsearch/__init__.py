@@ -20,7 +20,9 @@ start_time = time.time()
 print(f'Inv load start.')
 with open('./index.pkl', 'rb') as f:
     inv = pickle.load(f)
-loadtime = round(time.time() - start_time + 0.005, 5)
+loadtime = round(time.time() - start_time + 0.000005, 5)
 print(f'Inv load done with {loadtime}s.')
+
+# inv = {}
 
 from songsearch import views, errors, commands, search
