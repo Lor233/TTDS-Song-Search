@@ -114,21 +114,21 @@ def parse(query):
 
     start_time = time.time()
     result = search(tokens, inv)
-    stime = round(time.time() - start_time + 0.005, 5)
+    stime = round(time.time() - start_time + 0.000005, 5)
     print(f'Search done with {stime}s.')
 
     start_time = time.time()
     sorted_dict = rank(N, tokens, result, inv)
-    sotime = round(time.time() - start_time + 0.005, 5)
+    sotime = round(time.time() - start_time + 0.000005, 5)
     print(f'Rank done with {sotime}s.')
 
     start_time = time.time()
     songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } }).limit(20)
     # songs = db.songs.find({ 'title': {'$in': list(sorted_dict.keys()) } })
-    ftime = round(time.time() - start_time + 0.005, 5)
+    ftime = round(time.time() - start_time + 0.000005, 5)
     print(f'Find done with {ftime}s.')
 
-    searched_time = round(time.time() - search_time + 0.005, 5)
+    searched_time = round(time.time() - search_time + 0.000005, 5)
 
     return list(songs), sorted_dict, searched_time
 
