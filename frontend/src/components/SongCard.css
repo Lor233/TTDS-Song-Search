@@ -1,0 +1,10 @@
+.DetailsTitle{
+    width:100%;
+    word-wrap: break-word;
+    white-space: pre-line;
+}
+.card-container {
+    margin: 30px 0;
+    display: flex;
+    justify-content: column;
+  }

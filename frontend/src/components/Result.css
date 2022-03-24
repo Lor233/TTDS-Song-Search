@@ -1,0 +1,11 @@
+.result {
+    margin-top: 20px;
+}
+
+.result-container {
+    top: 40%;
+    width:1000px;
+    position:absolute;
+    left:60%;
+    transform:translate(-50%,0);
+    }
