@@ -37,7 +37,7 @@ loadtime = round(time.time() - start_time + 0.000005, 5)
 print(f'Inv load done with {loadtime}s.')
 
 # lyric_len = {}
-
+# LEN_A = 0
 # inv = {}
 
 from songsearch import views, errors, commands, search

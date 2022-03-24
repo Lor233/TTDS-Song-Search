@@ -38,7 +38,7 @@ def search(content, page):
             return redirect(url_for('search', content=content), page=page)
         return redirect(url_for('search', content=escape(new_content), page=1))
 
-    songs_cursor, sorted_dict, runtime = parse(content)
+    songs_cursor, sorted_dict, runtime = parse(content, 'key')
 
     for song in songs_cursor:
         if song_num == page_int[1]:
