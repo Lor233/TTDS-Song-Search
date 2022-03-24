@@ -172,7 +172,8 @@ def parse(query, type):
     songs = db.songs.find({ 'title': {'$in': titles } }, { '_id': 0 }).limit(3000)
 
     sort_dict = {d['title']: d for d in songs}
-    songs = [sort_dict[i] for i in titles]
+    valid_titles = sort_dict.keys()
+    songs = [sort_dict[i] for i in titles if i in valid_titles]
 
     # print(titles)
     ftime = round(time.time() - start_time + 0.000005, 5)
