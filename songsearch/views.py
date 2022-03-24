@@ -80,3 +80,74 @@ def detail(song_id):
     song = db.songs.find_one_or_404({"_id": song_id})
     lyrics = song['lyrics'].split('\n')
     return render_template('detail.html', song=song, lyrics=lyrics)
+
+# @app.route('/search/<type>/<content>/<page>', methods=['GET'])
+# def search_type(type, content, page):
+#     page_num = 20
+#     page_int = [0 + int(page) * page_num, (int(page) + 1) * page_num]
+#     song_num = 0
+#     songs = []
+
+#     songs_cursor, sorted_dict, runtime = parse(content, type)
+
+#     for song in songs_cursor:
+#         if song_num == page_int[1]:
+#             break
+#         if song_num >= page_int[0]:
+#             songs.append({'title': song['title'], 'artist':song['artist'], 'lyrics': song['lyrics']})
+#         song_num += 1
+
+#     if len(songs) == 0:
+#         return {'songs': songs, 'query_time': runtime}
+
+#     for i, song in enumerate(songs):
+#         # find best and first match lyric
+#         lyrics = song['lyrics'].replace("\r", "").split('\n')
+#         lyrics = np.array([x for x in lyrics if x])
+#         sort_sen = {k: v for k, v in sorted(sorted_dict[song['title']].items(), key=lambda x: len(x[1]), reverse=True)}
+#         pos = int(list(sort_sen.items())[0][0])
+
+#         # boundary judgment
+#         songs[i]['sen_pos'] = 1
+#         if pos == 0:
+#             pos = 1
+#             songs[i]['sen_pos'] = 0
+#         elif (pos + 2) >= lyrics.shape[0]:
+#             pos = lyrics.shape[0] - 1
+#             songs[i]['sen_pos'] = 2
+
+#         lyrics_3 = lyrics[pos-1:pos+2]
+#         songs[i]['lyrics_3'] = '\n'.join(lyrics_3)
+
+
+#     return {'songs': songs, 'query_time': runtime}
+
+@app.route('/search/<type>/<content>/<page>', methods=['GET'])
+def search_type(type, content, page):
+
+    songs, sorted_dict, runtime = parse(content, type)
+
+    if len(songs) == 0:
+        return {'songs': songs, 'query_time': runtime}
+
+    for i, song in enumerate(songs):
+        # find best and first match lyric
+        lyrics = song['lyrics'].replace("\r", "").split('\n')
+        lyrics = np.array([x for x in lyrics if x])
+        sort_sen = {k: v for k, v in sorted(sorted_dict[song['title']].items(), key=lambda x: len(x[1]), reverse=True)}
+        pos = int(list(sort_sen.items())[0][0])
+
+        # boundary judgment
+        songs[i]['sen_pos'] = 1
+        if pos == 0:
+            pos = 1
+            songs[i]['sen_pos'] = 0
+        elif (pos + 2) >= lyrics.shape[0]:
+            pos = lyrics.shape[0] - 1
+            songs[i]['sen_pos'] = 2
+
+        lyrics_3 = lyrics[pos-1:pos+2]
+        songs[i]['lyrics_3'] = '\n'.join(lyrics_3)
+
+
+    return {'songs': songs, 'query_time': runtime}

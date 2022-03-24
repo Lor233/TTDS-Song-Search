@@ -11,3 +11,4 @@ songs_combine.json
 term_seq.json
 venv
 index.pkl
+lyric_len.pkl

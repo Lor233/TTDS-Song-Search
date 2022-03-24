@@ -38,19 +38,34 @@ def index():
     psavetime = round(time.time() - start_time + 0.005, 5)
     print(f'Inv pickle done with {psavetime}s.')
 
+    # inv_list = [{x[0]: x[1]} for x in inv.items()]
+
     # start_time = time.time()
-    # with open('./index.pkl', 'rb') as f:
-    #     inv = pickle.load(f)
-    # loadtime = round(time.time() - start_time + 0.005, 5)
-    # print(f'Inv load done with {loadtime}s.')
-
-    inv_list = [{x[0]: x[1]} for x in inv.items()]
-
-    start_time = time.time()
-    db.index.insert_many(inv_list)
-    print(round(time.time() - start_time, 5))
+    # db.index.insert_many(inv_list)
+    # print(round(time.time() - start_time, 5))
 
     click.echo(f'Index Generation done with {psavetime}s.')
+
+@app.cli.command()
+def lyricslen():
+    # Generate lyrics length dict
+    lyrics_len = {}
+    total = 0
+
+    for song in tqdm(db.songs.find({}), total=db.songs.count_documents({})):
+        len_one = len(song['lyrics'].lower().strip('\xa0').replace('\r', '').split('\n'))
+        lyrics_len[song['title']] = len_one
+        total += len_one
+    
+    lyrics_len['<lyrics_len>'] = total / db.songs.count_documents({})
+
+    start_time = time.time()
+    with open('./lyric_len.pkl', 'wb') as f:
+        pickle.dump(lyrics_len, f)
+    psavetime = round(time.time() - start_time + 0.005, 5)
+    print(f'Lyrics length pickle done with {psavetime}s.')
+
+    click.echo('Lyrics length dict Generation done.')
 
 @app.cli.command()
 def combine():
