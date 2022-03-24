@@ -169,7 +169,7 @@ def parse(query, type):
     #     songs.append(db.songs.find_one({ 'title': title }))
 
     titles =list(sorted_dict.keys())
-    songs = db.songs.find({ 'title': {'$in': titles } }, { '_id': 0 }).limit(3000)
+    songs = db.songs.find({ 'title': {'$in': titles } }, { '_id': 0 }).limit(500)
 
     sort_dict = {d['title']: d for d in songs}
     valid_titles = sort_dict.keys()
