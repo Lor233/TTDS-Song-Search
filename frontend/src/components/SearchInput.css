@@ -1,5 +1,19 @@
 .search-form {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-top: 90px;
+    color:white
     }
+
+.search-input {
+        width: 65%;
+    }
+
+    .MuiOutlinedInput-root.MuiInputBase-root.MuiInputBase-colorPrimary.MuiInputBase-fullWidth.MuiInputBase-formControl.MuiInputBase-adornedEnd.MuiAutocomplete-inputRoot.css-g3djrs-MuiInputBase-root-MuiOutlinedInput-root{
+        background-color: #fff;
+    }
+
+
+#combo-box-demo-label {
+    background-color: #fff;
+}

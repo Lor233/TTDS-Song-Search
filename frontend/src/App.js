@@ -4,6 +4,9 @@ import Result from './components/Result.js'
 import SearchInput from './components/SearchInput.js'
 import API from './components/API.js'
 import './App.css'
+import queryInfo from './components/globalData';
+import LyricsOutlinedIcon from '@mui/icons-material/LyricsOutlined';
+
 
 const theme = createTheme({
       palette: {
@@ -27,7 +30,7 @@ export default class App extends Component {
     super(props)
     this.state = {
       // songs: [{songName:'True Love',singer:'a1',lyrics:"Rich man, poor man, beggar or king,\n You just can't have everything.\nSo thank your stars above\nFor a song in your heart."},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'},{songName:'a',singer:'a1',lyrics:'a2'}],
-      songs: [{songName:'True Love',singer:'a1',lyrics:"Rich man, poor man, beggar or king,\n You just can't have everything.\nSo thank your stars above\nFor a song in your heart."}],
+      songs: [{title:'True Love',artist:'a1',lyrics:["Rich man, poor man, beggar or king,You just can't have everything.\n","So thank your stars above\n","For a song in your heart."]}],
       // songs:[],
       showCards: true,
       showErrorMsg: false,
@@ -46,14 +49,17 @@ export default class App extends Component {
                   keySearchEnabled ? '/search/key/' + query + '/1':'/search/lyric/' + query + '/1'
               )
               console.log('response: ', response)
+              console.log('response time: ', response.data.query_time)
               this.setState({
                 songs: response.data.songs,
                 queryTime: response.data.query_time,
                 showCards: true,
                 loading: false
               })
+              //queryInfo.spellingCorrection=response.data.spellingCorrection
               console.log('query: ', query)
             } catch (error) {
+              queryInfo.spellingCorrection="aaa"
               console.error(error)
               console.log('query: ', query)
               this.setState({
@@ -73,8 +79,12 @@ export default class App extends Component {
         <CssBaseline/>
           <AppBar position='relative'>
           <Toolbar>
+          <LyricsOutlinedIcon className="icon" sx={{ fontSize: 40}}/>
             <Typography variant='h4' onClick={() => window.location.reload()}>
-              Lyrics Search
+            <p style={{ fontFamily: "fantasy", marginTop: "20px", whiteSpace:"-moz-initial", textIndent:"0.8em"}}>
+         
+              Song Search
+            </p>
             </Typography>
 
           </Toolbar>
@@ -92,14 +102,13 @@ export default class App extends Component {
               {loading ?
                 <Fragment>
                   {Array.apply(null, { length: 5 }).map((e, i) => (
-                    <Skeleton variant="rect" width={790} height={170} className="skeleton-card" />
+                    <Skeleton variant="rect" width={790} height={0} className="skeleton-card" />
                   ))}
                 </Fragment>
                 : showCards && <Result data={songs} queryTime={queryTime} />
               }
             </Fragment>
-
-        
+            {/* showCards &&  <Result performSearch={this.performSearch} data={songs} queryTime={queryTime} /> */}
         </ThemeProvider>
 
         </div>

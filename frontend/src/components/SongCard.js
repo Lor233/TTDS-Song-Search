@@ -4,13 +4,13 @@ import { Card, CardMedia, Box, CardContent, CardActionArea, Typography,IconButto
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import './SongCard.css'
 
-const lYRICS_LIMIT = 200
 const imgSrc=["thumb1.jpg","thumb2.jpeg","thumb3.jpeg","thumb4.jpeg","thumb5.jpeg","thumb6.jpg","thumb7.jpg","thumb8.jpg","thumb9.jpg","thumb10.jpg","thumb11.jpg","thumb12.jpg","thumb13.jpg","thumb14.jpg","thumb15.jpg"]
 
 
 export default class SongCard extends React.Component {
   render() {
     let { title,artist,lyrics_3 } = this.props
+    console.log('res title: ', title)
     var r=Math.floor(Math.random() * 14)
     return (
       <div>
@@ -55,6 +55,6 @@ SongCard.propTypes = {
     lyrics_3: PropTypes.string.isRequired,
   })
 }
-    // lyrics_3: PropTypes.array.isRequired,
-    // lyrics: PropTypes.string.isRequired,
+
+    // lyrics: PropTypes.array.isRequired,
     // pos: PropTypes.number.isRequired

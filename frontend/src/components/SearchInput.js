@@ -3,11 +3,12 @@ import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
-
+import queryInfo from './globalData';
 
 import PropTypes from 'prop-types'
-import { FormControlLabel, Typography, Checkbox } from '@mui/material'
-// import { Autocomplete } from '@mui/material'
+import { FormControlLabel, Typography, Checkbox, Button } from '@mui/material'
+import { Autocomplete } from '@mui/material'
+import TextField from '@mui/material/TextField'
 import API from './API.js'
 
 import './SearchInput.css'
@@ -20,7 +21,7 @@ export default class SearchInput extends Component {
       query: '',
       keySearchEnabled: false,
       invalidMessage: '',
-      suggestions: []
+      suggestions: ['I','I love','I love you']
     }
   }
 
@@ -41,8 +42,9 @@ export default class SearchInput extends Component {
   }
 
   querySuggestion = async query => {
-    const response = await API.get(`/query_suggest?query=${query}`)
-    console.log('response', response)
+    // const response = await API.get(`/query_suggest?query=${query}`)
+    const response = await API.get('/suggest/'+query)
+    console.log('response suggestion', response)
     this.setState({ suggestions: response.data.results })
   }
 
@@ -53,7 +55,8 @@ export default class SearchInput extends Component {
   selectSearch = e => {
     e && e.preventDefault()
     const { query } = this.state
-    console.log("test2")
+    queryInfo.query=query;
+    queryInfo.keySearchEnabled=this.state.keySearchEnabled;
     this.props.performSearch({query}, this.state.keySearchEnabled)
   }
 
@@ -64,7 +67,8 @@ export default class SearchInput extends Component {
   //打勾
     this.setState({ keySearchEnabled }, () => {
       if (query.length) {
-        console.log("test1")
+        queryInfo.query=query;
+        queryInfo.keySearchEnabled=this.state.keySearchEnabled;
         this.props.performSearch({query}, keySearchEnabled)
       }
     }
@@ -77,22 +81,46 @@ export default class SearchInput extends Component {
         console.log(suggestions)
 
         return(
+          <form noValidate autoComplete="off" onSubmit={this.selectSearch}>
           <div className='search-form'>
             <br/>
             <br/>
-            <Paper
-            component="form" onSubmit={this.selectSearch}
-            sx={{ p: '8px 4px', display: 'flex', alignItems: 'center', width: 700 }}>
-            <InputBase onChange={this.onSearchChange}
-            sx={{ ml: 2, flex: 1 }}
-            placeholder={keySearchEnabled ? 'Search for keywords in a song...' : 'Search for song lyrics...'}
-            inputProps={{ 'aria-label': 'search google maps' }}
-            />
-            <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
+
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={suggestions}
+                autoComplete
+                includeInputInList
+                disableListWrap
+                disableOpenOnFocus
+                freeSolo
+                sx={{ width: 700}}
+
+                onChange={(e)=>{
+                  console.log(e.target.value);
+                }}
+                renderInput={(params) => {
+                  return(
+                    <TextField
+                      {...params}
+                      label={keySearchEnabled ? 'Search for keywords in a song...' : 'Search for song lyrics...'}
+                      variant="outlined"
+                      fullWidth
+                      onChange={this.onSearchChange}
+                    />
+                  )}}
+
+                  
+
+              
+              />
+
+
+            <IconButton type="submit" sx={{ p: '10px', color: 'darkgrey'}} aria-label="search">
             <SearchIcon />
             </IconButton>
-            </Paper>
-
+           
 
             <FormControlLabel className="song-search"
               control={
@@ -106,8 +134,11 @@ export default class SearchInput extends Component {
                 />
               }
               label={<Typography style={{ color: '#FFFFFF' }}>Search for keywords</Typography>}
-            />
-          </div>       
+            /> 
+
+
+          </div>   
+          </form>    
         )
     }
 }

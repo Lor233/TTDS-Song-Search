@@ -1,9 +1,9 @@
 import React from 'react'
-import { Grid, Typography, Pagination } from '@mui/material'
+import { Grid, Typography, Pagination ,Button,Link} from '@mui/material'
 import PropTypes from 'prop-types'
 import SongCard from './SongCard.js'
-import API from './API.js'
 import './Result.css'
+import queryInfo from './globalData';
 
 export default class Result extends React.Component {
   constructor(props) {
@@ -37,6 +37,27 @@ export default class Result extends React.Component {
       <div className="result-container">
         <Grid container spacing={6}>
           <Grid item xs={8}>
+            {queryInfo.spellingCorrection!=="" &&
+            <div>
+              <Grid container spacing={6}>
+              <Typography variant="body1" >{`Do you mean:`}</Typography>
+              <Link
+              component="button"
+              variant="body1"
+              color="primary"
+              onClick={() => {
+                queryInfo.query=queryInfo.spellingCorrection;
+                queryInfo.spellingCorrection="";
+                this.props.performSearch(queryInfo.query, queryInfo.keySearchEnabled)                
+              }}
+              >
+              {queryInfo.spellingCorrection}
+              </Link>
+              </Grid>
+              <Typography variant="body1" >{`Your current search is ${queryInfo.query}`}</Typography>
+            </div>
+            }
+
             {data.length > 0 &&
             <Typography variant="body1" className="query-results">{`Query results: ${data.length} songs (${time} seconds)`}</Typography>
             }
@@ -59,6 +80,7 @@ export default class Result extends React.Component {
   }
 }
 Result.propTypes = {
+  performSearch: PropTypes.func.isRequired,
   data: PropTypes.array.isRequired,
   queryTime: PropTypes.number.isRequired
 }

@@ -6,6 +6,8 @@ from flask import render_template, request, url_for, redirect, flash, escape
 from songsearch import app, db
 from songsearch.search import parse
 
+from extra
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     start_time = time.time()
@@ -148,6 +150,12 @@ def search_type(type, content, page):
 
         lyrics_3 = lyrics[pos-1:pos+2]
         songs[i]['lyrics_3'] = '\n'.join(lyrics_3)
+
+
+    return {'songs': songs, 'query_time': runtime}
+
+@app.route('/suggest/<query>', methods=['GET'])
+def search_type(query):
 
 
     return {'songs': songs, 'query_time': runtime}
