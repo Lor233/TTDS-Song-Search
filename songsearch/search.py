@@ -162,6 +162,8 @@ def parse(query, type):
     sotime = round(time.time() - start_time + 0.000005, 5)
     print(f'Rank done with {sotime}s.')
 
+        searched_time = round(time.time() - search_time + 0.000005, 5)
+
     start_time = time.time()
 
     # songs = []
@@ -169,7 +171,7 @@ def parse(query, type):
     #     songs.append(db.songs.find_one({ 'title': title }))
 
     titles =list(sorted_dict.keys())
-    songs = db.songs.find({ 'title': {'$in': titles } }, { '_id': 0 }).limit(500)
+    songs = db.songs.find({ 'title': {'$in': titles } }, { '_id': 0 }).limit(200)
     ftime = round(time.time() - start_time + 0.000005, 5)
     print(f'Find done with {ftime}s.')
 
@@ -181,7 +183,7 @@ def parse(query, type):
     ftime = round(time.time() - start_time + 0.000005, 5)
     print(f'Find list done with {ftime}s.')
 
-    searched_time = round(time.time() - search_time + 0.000005, 5)
+    # searched_time = round(time.time() - search_time + 0.000005, 5)
 
     return songs, sorted_dict, searched_time
 
