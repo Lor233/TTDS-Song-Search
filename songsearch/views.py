@@ -5,8 +5,7 @@ from flask import render_template, request, url_for, redirect, flash, escape
 
 from songsearch import app, db
 from songsearch.search import parse
-
-from extra
+from songsearch.extra import correct_spelling, query_suggestion
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -127,10 +126,12 @@ def detail(song_id):
 @app.route('/search/<type>/<content>/<page>', methods=['GET'])
 def search_type(type, content, page):
 
+    correction = correct_spelling(content)
+
     songs, sorted_dict, runtime = parse(content, type)
 
     if len(songs) == 0:
-        return {'songs': songs, 'query_time': runtime}
+        return {'songs': songs, 'query_time': runtime, 'spellingCorrection': correction}
 
     for i, song in enumerate(songs):
         # find best and first match lyric
@@ -151,11 +152,11 @@ def search_type(type, content, page):
         lyrics_3 = lyrics[pos-1:pos+2]
         songs[i]['lyrics_3'] = '\n'.join(lyrics_3)
 
-
-    return {'songs': songs, 'query_time': runtime}
+    return {'songs': songs, 'query_time': runtime, 'spellingCorrection': correction}
 
 @app.route('/suggest/<query>', methods=['GET'])
-def search_type(query):
+def suggest(query):
 
+    results = query_suggestion(query)
 
-    return {'songs': songs, 'query_time': runtime}
+    return {'results': results}

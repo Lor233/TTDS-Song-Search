@@ -2,10 +2,10 @@ import pickle
 import string
 import time
 
-with open('./voc_dict.pkl', 'rb') as f:
+with open('./songsearch/models/voc_dict.pkl', 'rb') as f:
     voc_dict = pickle.load(f)
 
-with open('./2_gram.pkl', 'rb') as f:
+with open('./songsearch/models/2_gram.pkl', 'rb') as f:
     _2gram_model = pickle.load(f)
 
 def _is_known(token):
@@ -51,7 +51,7 @@ def correct_spelling(tokens):
     res = []
     for i in range(len(tokens.split())):
         token = tokens.split()[i]
-        if _is_known(token) and voc_dict[token]>=10:
+        if _is_known(token) and voc_dict[token]>=50:
             res.append(token)
         else:
             correct_token = _find_most_common_correct_token_spelling(token)
@@ -89,7 +89,8 @@ def gen_next(model, tokens):
     return sen
 
 
-def query_suggestion(model, tokens):
+def query_suggestion(tokens):
+    model = _2gram_model
 
     res = []
     res.append(tokens)
@@ -135,7 +136,7 @@ if __name__ == '__main__':
 
     b = time.time()
 
-    print(query_suggestion(_2gram_model,'what'))
+    print(query_suggestion('what'))
     print(time.time() - b)
 
 

@@ -34,6 +34,9 @@ export default class SearchInput extends Component {
 
     this.setState({ query }, async () => {
       if (query.length && /(\w+)\s$/.test(query)) {
+      // if (query.length) {
+        // && /(\w+)\s$/.test(query)
+        console.log('suggest', query)
         this.querySuggestion(query)
       } else if (!query.length) {
         this.setState({ suggestions: [] })

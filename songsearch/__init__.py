@@ -40,4 +40,4 @@ print(f'Inv load done with {loadtime}s.')
 # LEN_A = 0
 # inv = {}
 
-from songsearch import views, errors, commands, search
+from songsearch import views, errors, commands, search, extra

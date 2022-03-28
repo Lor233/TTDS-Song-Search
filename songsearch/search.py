@@ -162,7 +162,7 @@ def parse(query, type):
     sotime = round(time.time() - start_time + 0.000005, 5)
     print(f'Rank done with {sotime}s.')
 
-        searched_time = round(time.time() - search_time + 0.000005, 5)
+    searched_time = round(time.time() - search_time + 0.000005, 5)
 
     start_time = time.time()
 

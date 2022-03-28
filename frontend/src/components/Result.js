@@ -37,7 +37,7 @@ export default class Result extends React.Component {
       <div className="result-container">
         <Grid container spacing={6}>
           <Grid item xs={8}>
-            {queryInfo.spellingCorrection!=="" &&
+            {queryInfo.spellingCorrection != null &&
             <div>
               <Grid container spacing={6}>
               <Typography variant="body1" >{`Do you mean:`}</Typography>
@@ -45,11 +45,11 @@ export default class Result extends React.Component {
               component="button"
               variant="body1"
               color="primary"
-              onClick={() => {
-                queryInfo.query=queryInfo.spellingCorrection;
-                queryInfo.spellingCorrection="";
-                this.props.performSearch(queryInfo.query, queryInfo.keySearchEnabled)                
-              }}
+              // onClick={() => {
+              //   queryInfo.query=queryInfo.spellingCorrection;
+              //   // queryInfo.spellingCorrection=null;
+              //   this.props.performSearch(queryInfo.query, queryInfo.keySearchEnabled)                
+              // }}
               >
               {queryInfo.spellingCorrection}
               </Link>
