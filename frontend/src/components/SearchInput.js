@@ -21,7 +21,7 @@ export default class SearchInput extends Component {
       query: '',
       keySearchEnabled: false,
       invalidMessage: '',
-      suggestions: ['I','I love','I love you']
+      suggestions: []
     }
   }
 
