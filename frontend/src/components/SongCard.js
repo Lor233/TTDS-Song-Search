@@ -4,9 +4,6 @@ import { Card, CardMedia, Box, CardContent, CardActionArea, Typography,IconButto
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import './SongCard.css'
 
-const imgSrc=["thumb1.jpg","thumb2.jpeg","thumb3.jpeg","thumb4.jpeg","thumb5.jpeg","thumb6.jpg","thumb7.jpg","thumb8.jpg","thumb9.jpg","thumb10.jpg","thumb11.jpg","thumb12.jpg","thumb13.jpg","thumb14.jpg","thumb15.jpg"]
-
-
 export default class SongCard extends React.Component {
   render() {
     let { title,artist,lyrics_3 } = this.props
@@ -19,7 +16,7 @@ export default class SongCard extends React.Component {
           className="card-media"
           component="img"
           sx={{ width: 200, height:200 }}
-          image={require(`../static/images/${imgSrc[r]}`)}
+          image={require(`../static/images/thumb${r}.jpg`)}
           alt="Live from space album cover"
           />
           <Box sx={{ display: 'flex', flexDirection: 'column' }}> 
